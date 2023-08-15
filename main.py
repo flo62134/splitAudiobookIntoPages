@@ -87,7 +87,7 @@ def extract_text_from_html(ebook_filename, page_number):
         span_tag = soup.find('span', {'id': f'pg{page_number + 1}', 'epub:type': 'pagebreak'})
 
         if span_tag:
-            p_tag = span_tag.find_previous('p')
+            p_tag = span_tag.find_previous('p').find_previous('p')
             if p_tag:
                 return p_tag.get_text()
 
@@ -107,8 +107,10 @@ def split_audio_file(audiobook_filename, start_time, end_time, output_filename):
     # Here is where you should run the ffmpeg command.
     # Replace the following comment with the actual command.
     #
-    os.system(
-        f'ffmpeg -i ./audiobook_chapters/{audiobook_filename} -ss {start_time} -to {end_time} -c copy ./audiobook_pages/{output_filename}')
+    start_time = start_time.replace(',', '.')
+    end_time = end_time.replace(',', '.')
+    os.system(f'ffmpeg -i "./audiobook_chapters/{audiobook_filename}" -ss {start_time} -to {end_time} -c copy "./audiobook_pages/{output_filename}"')
+
     #
     print(
         f"FFMPEG command would be run for {audiobook_filename} from {start_time} to {end_time} with output file {output_filename}")
@@ -147,7 +149,7 @@ def get_end_timestamp_from_srt(srt_file_path, search_text):
 if __name__ == '__main__':
     # Define the paths for input and output directories/files
     chapters_map_file_path = './chapters_map'
-    audiobook_pages_file_path = './audiobook_pages'
+    audiobook_pages_file_path = './audiobook_start_end_pages'
     ebook_files_path = './ebook_files/text/'
     audiobook_chapters_path = './audiobook_chapters/'
     alignment_path = './alignment/'
@@ -160,7 +162,7 @@ if __name__ == '__main__':
     create_directories()
 
     # Step 3: Run Echogarden Align
-    run_echogarden_align(audiobook_to_ebook_map)
+    # run_echogarden_align(audiobook_to_ebook_map)
 
     # Step 4: Read Audiobook Pages
     audiobook_pages = read_audiobook_pages(audiobook_pages_file_path)
