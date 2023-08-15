@@ -39,6 +39,21 @@ corresponding to the pages of the ebook.
 - ffmpeg: for splitting audio files (install separately)
 - echogarden: for aligning audiobook and ebook files (install separately)
 
+### Override echogarden
+
+You need to override /usr/local/lib/node_modules/echogarden/dist/utilities/Timeline.js by adding a `continue` here:  
+```js
+        for (const sentenceEntry of sentenceTimeline) {
+            const wordTimeline = sentenceEntry.timeline;
+            if (wordTimeline.length == 0) {
+                continue;
+                throw new Error("Sentence has no word entries");
+            }
+            sentenceEntry.startTime = wordTimeline[0].startTime;
+            sentenceEntry.endT
+        }
+```
+
 ## Example `chapters_map` File
 
 ```
