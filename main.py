@@ -1,7 +1,9 @@
-import os
 import csv
+import json
+import os
 import re
 from bs4 import BeautifulSoup
+
 
 def read_chapters_map(file_path):
     """
@@ -113,40 +115,36 @@ def split_audio_file(audiobook_filename, start_time, end_time, output_filename):
     #
     start_time = start_time.replace(',', '.')
     end_time = end_time.replace(',', '.')
-    os.system(f'ffmpeg -i "./audiobook_chapters/{audiobook_filename}" -ss {start_time} -to {end_time} -c copy "./audiobook_pages/{output_filename}"')
+    os.system(
+        f'ffmpeg -i "./audiobook_chapters/{audiobook_filename}" -ss {start_time} -to {end_time} -c copy "./audiobook_pages/{output_filename}"')
 
     #
     print(
         f"FFMPEG command would be run for {audiobook_filename} from {start_time} to {end_time} with output file {output_filename}")
 
 
-def get_end_timestamp_from_srt(srt_file_path, search_text):
+def get_end_timestamp_from_json(json_file_path, search_text):
     """
-    Read a .srt file, search for a given text content, and retrieve the end timestamp of that content.
+    Read a .json file, search for a given text content, and retrieve the end timestamp of that content.
 
     Args:
-    srt_file_path (str): Path to the .srt file.
-    search_text (str): The text content to search for in the .srt file.
+    json_file_path (str): Path to the .json file.
+    search_text (str): The text content to search for in the .json file.
 
     Returns:
-    str: The end timestamp of the content if found, or None otherwise.
+    float: The end timestamp of the content if found, or None otherwise.
     """
-    # Regular expression pattern for time range in SRT file
-    time_range_pattern = re.compile(r'(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})')
 
-    with open(srt_file_path, 'r', encoding='utf-8') as file:
-        lines = file.readlines()
+    # Read the JSON file
+    with open(json_file_path, 'r') as file:
+        json_data = json.load(file)
 
-    for i, line in enumerate(lines):
-        # If the current line contains the search_text
-        if search_text in line:
-            # Look for the time range in the previous lines
-            for j in range(i, -1, -1):
-                match = time_range_pattern.search(lines[j])
-                if match:
-                    # Return the end timestamp
-                    return match.group(2)
+    # Traverse through the nested structure of the JSON data
+    for item in json_data:
+        if item['type'] == 'segment' and item['text'] == search_text:
+            return item['endTime']
 
+    # Return None if the search_text is not found in the JSON file
     return None
 
 
@@ -181,10 +179,10 @@ if __name__ == '__main__':
 
                 if text_content:
                     # Construct the path to the corresponding .srt file
-                    srt_file_path = os.path.join(alignment_path, f'{audiobook_filename}-{ebook_filename}.srt')
+                    json_file_path = os.path.join(alignment_path, f'{audiobook_filename}-{ebook_filename}.json')
 
                     # Search for this text content in the .srt file
-                    end_timestamp = get_end_timestamp_from_srt(srt_file_path, text_content)
+                    end_timestamp = get_end_timestamp_from_json(json_file_path, text_content)
 
                     if end_timestamp:
                         # Construct the path to the output audio file
