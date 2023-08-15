@@ -1,39 +1,189 @@
+import os
+import csv
+import re
+from bs4 import BeautifulSoup
 
-# Press the green button in the gutter to run the script.
+
+def read_chapters_map(file_path):
+    """
+    Read the chapters_map file and create a mapping between audiobook files and epub files.
+
+    Args:
+    file_path (str): Path to the chapters_map file.
+
+    Returns:
+    dict: A dictionary where the key is the audiobook filename and the value is the ebook filename.
+    """
+    mapping = {}
+    with open(file_path, 'r') as file:
+        reader = csv.reader(file)
+        for row in reader:
+            audiobook_filename, ebook_filename = row
+            mapping[audiobook_filename.strip()] = ebook_filename.strip()
+
+    return mapping
+
+
+def create_directories():
+    """
+    Create the necessary directories if they don't already exist.
+    """
+    os.makedirs('./alignment', exist_ok=True)
+    os.makedirs('./audiobook_pages', exist_ok=True)
+
+
+def run_echogarden_align(audiobook_to_ebook_map):
+    """
+    Run the echogarden align command for every pair of audiobook and ebook files.
+
+    Args:
+    audiobook_to_ebook_map (dict): A mapping between audiobook files and epub files.
+    """
+    for audiobook_filename, ebook_filename in audiobook_to_ebook_map.items():
+        alignment_srt_filename = f'./alignment/{audiobook_filename}-{ebook_filename}.srt'
+        alignment_json_filename = f'./alignment/{audiobook_filename}-{ebook_filename}.json'
+
+        # Here is where you should run the echogarden align command.
+        # Replace the following comment with the actual command.
+        #
+        os.system(
+            f'echogarden align "./audiobook_chapters/{audiobook_filename}" "./ebook_files/text/{ebook_filename}" "{alignment_srt_filename}" "{alignment_json_filename}"')
+        #
+        print(f"Align command would be run for {audiobook_filename} and {ebook_filename}")
+
+
+def read_audiobook_pages(file_path):
+    """
+    Read the audiobook_pages file and parse the start and end page numbers.
+
+    Args:
+    file_path (str): Path to the audiobook_pages file.
+
+    Returns:
+    list: A list of tuples where each tuple contains the start and end page numbers.
+    """
+    pages = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            start_page, end_page = map(int, line.strip().split(','))
+            pages.append((start_page, end_page))
+    return pages
+
+
+def extract_text_from_html(ebook_filename, page_number):
+    """
+    Parse the HTML file to find the <span> tag with the specified ID and attributes,
+    and then locate the preceding <p> tag to extract its text content.
+
+    Args:
+    ebook_filename (str): The filename of the ebook HTML file.
+    page_number (int): The page number to search for in the HTML file.
+
+    Returns:
+    str: The text content of the preceding <p> tag, or None if not found.
+    """
+    with open(f'./ebook_files/text/{ebook_filename}', 'r') as file:
+        soup = BeautifulSoup(file, 'html.parser')
+        span_tag = soup.find('span', {'id': f'pg{page_number + 1}', 'epub:type': 'pagebreak'})
+
+        if span_tag:
+            p_tag = span_tag.find_previous('p')
+            if p_tag:
+                return p_tag.get_text()
+
+    return None
+
+
+def split_audio_file(audiobook_filename, start_time, end_time, output_filename):
+    """
+    Use ffmpeg to split the audio file based on the timestamps.
+
+    Args:
+    audiobook_filename (str): The filename of the audiobook file.
+    start_time (str): The start timestamp to split the audio file.
+    end_time (str): The end timestamp to split the audio file.
+    output_filename (str): The filename for the output audio file.
+    """
+    # Here is where you should run the ffmpeg command.
+    # Replace the following comment with the actual command.
+    #
+    os.system(
+        f'ffmpeg -i ./audiobook_chapters/{audiobook_filename} -ss {start_time} -to {end_time} -c copy ./audiobook_pages/{output_filename}')
+    #
+    print(
+        f"FFMPEG command would be run for {audiobook_filename} from {start_time} to {end_time} with output file {output_filename}")
+
+
+def get_end_timestamp_from_srt(srt_file_path, search_text):
+    """
+    Read a .srt file, search for a given text content, and retrieve the end timestamp of that content.
+
+    Args:
+    srt_file_path (str): Path to the .srt file.
+    search_text (str): The text content to search for in the .srt file.
+
+    Returns:
+    str: The end timestamp of the content if found, or None otherwise.
+    """
+    # Regular expression pattern for time range in SRT file
+    time_range_pattern = re.compile(r'(\d{2}:\d{2}:\d{2},\d{3}) --> (\d{2}:\d{2}:\d{2},\d{3})')
+
+    with open(srt_file_path, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+
+    for i, line in enumerate(lines):
+        # If the current line contains the search_text
+        if search_text in line:
+            # Look for the time range in the previous lines
+            for j in range(i, -1, -1):
+                match = time_range_pattern.search(lines[j])
+                if match:
+                    # Return the end timestamp
+                    return match.group(2)
+
+    return None
+
+
 if __name__ == '__main__':
+    # Define the paths for input and output directories/files
+    chapters_map_file_path = './chapters_map'
+    audiobook_pages_file_path = './audiobook_pages'
+    ebook_files_path = './ebook_files/text/'
+    audiobook_chapters_path = './audiobook_chapters/'
+    alignment_path = './alignment/'
+    audiobook_pages_path = './audiobook_pages/'
 
+    # Step 1: Read the Chapters Map
+    audiobook_to_ebook_map = read_chapters_map(chapters_map_file_path)
 
-# This script splits an audiobook into pages, based on the pages found in an epub file.
-# Epub file will be located in ./ebook_files
-# The epub file will have been extracted by the user
-# The epub text files will be located in ./ebook_files/text
+    # Step 2: Create Directories
+    create_directories()
 
-# Audiobook will be located in ./audiobook_chapters
-# ./audiobook_chapters contains multiple files, each representing a chapter of the audiobook
-# Files in ./audiobook_chapters can be sorted numerically in order to sort them by chapter
+    # Step 3: Run Echogarden Align
+    run_echogarden_align(audiobook_to_ebook_map)
 
-# File ./chapters_map contains a list of audiobook files related to epub files
-# An audiobook file can be mapped to only one epub file
-# ./chapters_map contains lines that follow this format:
-# AUDIOFILENAME, EBOOKFILENAME
-# Example: Project Hail Mary [B08GB66Q3R] - 03 - Chapter 1.mp3, part0007.html
+    # Step 4: Read Audiobook Pages
+    audiobook_pages = read_audiobook_pages(audiobook_pages_file_path)
 
-# Create directory ./alignment
-# This directory will contain alignment files between audiobook files and ebook files
-# For every couple of files, run the following command on the local computer:
-# echogarden align ./audiobook_chapters/AUDIOBOOKFILENAME  ./ebook_files/text/EBOOKFILENAME ./alignment/AUDIOBOOKFILENAME-EBOOKFILENAME.srt ./alignment/AUDIOBOOKFILENAME-EBOOKFILENAME.json
+    # Step 5: Extract Text and Split Audio
+    for start_page, end_page in audiobook_pages:
+        for page_number in range(start_page, end_page + 1):
+            for audiobook_filename, ebook_filename in audiobook_to_ebook_map.items():
 
-# Create directory ./audiobook_pages
-# File pages contain two pages numbers, separated by a comma.
-# Example: 3, 479
+                # Extract text content from the HTML file
+                text_content = extract_text_from_html(ebook_filename, page_number)
 
-# Iterate over start page and end page.
-# For every page in ./audiobook_pages
-    # Search for html tag <span> with id equal to "pg{PAGENUMBER+1}" and attribute epub:type="pagebreak"
-    # If the first page is 3, you will look for: <span id="pg4" epub:type="pagebreak" class="calibre">
-    # Look for the previous HTML <p> tag and retrieve its text content.
-    # Look for this text content in ./alignment/AUDIOBOOKFILENAME-EBOOKFILENAME.srt
-    # Retrieve the end timestamp of this text content
-    # Using FFMPEG, split ./audiobook_chapters/AUDIOBOOKFILENAME from the beginning of the previous chapter (or start at 0 if it does not exist) to the end timestamp of the content
-    # The audio file result must be put in ./audiobook_pages/PAGENUMBER
-    # For example: the first audio file will be ./audiobook_pages/3
+                if text_content:
+                    # Construct the path to the corresponding .srt file
+                    srt_file_path = os.path.join(alignment_path, f'{audiobook_filename}-{ebook_filename}.srt')
+
+                    # Search for this text content in the .srt file
+                    end_timestamp = get_end_timestamp_from_srt(srt_file_path, text_content)
+
+                    if end_timestamp:
+                        # Construct the path to the output audio file
+                        output_audio_filename = f'{page_number}.mp3'
+                        output_audio_filepath = os.path.join(audiobook_pages_path, output_audio_filename)
+
+                        # Use ffmpeg to split the audio file based on the timestamps
+                        split_audio_file(audiobook_filename, '0', end_timestamp, output_audio_filename)
