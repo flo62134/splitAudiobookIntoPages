@@ -42,17 +42,15 @@ def run_echogarden_align(audiobook_to_ebook_map, overwrite_existing: bool = Fals
     overwrite_existing (bool): Whether to overwrite existing files or not.
     """
     for audiobook_filename, ebook_filename in audiobook_to_ebook_map.items():
-        alignment_srt_filename = f'./alignment/{audiobook_filename}-{ebook_filename}.srt'
         alignment_json_filename = f'./alignment/{audiobook_filename}-{ebook_filename}.json'
 
         # Check if files exist and if overwrite_existing is set to False
-        if (os.path.exists(alignment_srt_filename) and os.path.exists(
-                alignment_json_filename)) and not overwrite_existing:
+        if (os.path.exists(alignment_json_filename)) and not overwrite_existing:
             continue
 
         # Run the echogarden align command
         os.system(
-            f'echogarden align "./audiobook_chapters/{audiobook_filename}" "./ebook_files/text/{ebook_filename}" "{alignment_srt_filename}" "{alignment_json_filename}"'
+            f'echogarden align "./audiobook_chapters/{audiobook_filename}" "./ebook_files/text/{ebook_filename}" "{alignment_json_filename}"'
         )
 
         print(f"Align command was run for {audiobook_filename} and {ebook_filename}")
@@ -178,10 +176,10 @@ if __name__ == '__main__':
                 text_content = extract_text_from_html(ebook_filename, page_number)
 
                 if text_content:
-                    # Construct the path to the corresponding .srt file
+                    # Construct the path to the corresponding .json file
                     json_file_path = os.path.join(alignment_path, f'{audiobook_filename}-{ebook_filename}.json')
 
-                    # Search for this text content in the .srt file
+                    # Search for this text content in the .json file
                     end_timestamp = get_end_timestamp_from_json(json_file_path, text_content)
 
                     if end_timestamp:
