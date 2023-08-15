@@ -111,8 +111,6 @@ def split_audio_file(audiobook_filename, start_time, end_time, output_filename):
     # Here is where you should run the ffmpeg command.
     # Replace the following comment with the actual command.
     #
-    start_time = start_time.replace(',', '.')
-    end_time = end_time.replace(',', '.')
     os.system(
         f'ffmpeg -i "./audiobook_chapters/{audiobook_filename}" -ss {start_time} -to {end_time} -c copy "./audiobook_pages/{output_filename}"')
 
@@ -167,6 +165,8 @@ if __name__ == '__main__':
     # Step 4: Read Audiobook Pages
     audiobook_pages = read_audiobook_pages(audiobook_pages_file_path)
 
+    start_time = 0
+
     # Step 5: Extract Text and Split Audio
     for start_page, end_page in audiobook_pages:
         for page_number in range(start_page, end_page + 1):
@@ -187,5 +187,10 @@ if __name__ == '__main__':
                         output_audio_filename = f'{page_number}.mp3'
                         output_audio_filepath = os.path.join(audiobook_pages_path, output_audio_filename)
 
+                        if start_time > end_timestamp:
+                            start_time = 0
+
                         # Use ffmpeg to split the audio file based on the timestamps
-                        split_audio_file(audiobook_filename, '0', end_timestamp, output_audio_filename)
+                        split_audio_file(audiobook_filename, start_time, end_timestamp, output_audio_filename)
+
+                        start_time = end_timestamp
