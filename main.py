@@ -170,6 +170,9 @@ if __name__ == '__main__':
     # Step 5: Extract Text and Split Audio
     for start_page, end_page in audiobook_pages:
         for page_number in range(start_page, end_page + 1):
+            if os.path.exists(f'{audiobook_pages_path}{page_number}.mp3'):
+                continue
+
             for audiobook_filename, ebook_filename in audiobook_to_ebook_map.items():
 
                 # Extract text content from the HTML file
@@ -178,6 +181,8 @@ if __name__ == '__main__':
                 if text_content:
                     # Construct the path to the corresponding .json file
                     json_file_path = os.path.join(alignment_path, f'{audiobook_filename}-{ebook_filename}.json')
+                    if not os.path.exists(json_file_path):
+                        continue
 
                     # Search for this text content in the .json file
                     end_timestamp = get_end_timestamp_from_json(json_file_path, text_content)
