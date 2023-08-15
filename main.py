@@ -108,11 +108,11 @@ def split_audio_file(audiobook_filename, start_time, end_time, output_filename):
     end_time (str): The end timestamp to split the audio file.
     output_filename (str): The filename for the output audio file.
     """
-    # Here is where you should run the ffmpeg command.
-    # Replace the following comment with the actual command.
-    #
+    if os.path.exists(f"./audiobook_pages/{output_filename}"):
+        return
+
     os.system(
-        f'ffmpeg -i "./audiobook_chapters/{audiobook_filename}" -ss {start_time} -to {end_time} -c copy "./audiobook_pages/{output_filename}"')
+        f'ffmpeg -i "./audiobook_chapters/{audiobook_filename}" -map_metadata -1 -ss {start_time} -to {end_time} -c copy "./audiobook_pages/{output_filename}"')
 
     #
     print(
