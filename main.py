@@ -3,7 +3,6 @@ import csv
 import re
 from bs4 import BeautifulSoup
 
-
 def read_chapters_map(file_path):
     """
     Read the chapters_map file and create a mapping between audiobook files and epub files.
@@ -32,24 +31,29 @@ def create_directories():
     os.makedirs('./audiobook_pages', exist_ok=True)
 
 
-def run_echogarden_align(audiobook_to_ebook_map):
+def run_echogarden_align(audiobook_to_ebook_map, overwrite_existing: bool = False):
     """
     Run the echogarden align command for every pair of audiobook and ebook files.
 
     Args:
     audiobook_to_ebook_map (dict): A mapping between audiobook files and epub files.
+    overwrite_existing (bool): Whether to overwrite existing files or not.
     """
     for audiobook_filename, ebook_filename in audiobook_to_ebook_map.items():
         alignment_srt_filename = f'./alignment/{audiobook_filename}-{ebook_filename}.srt'
         alignment_json_filename = f'./alignment/{audiobook_filename}-{ebook_filename}.json'
 
-        # Here is where you should run the echogarden align command.
-        # Replace the following comment with the actual command.
-        #
+        # Check if files exist and if overwrite_existing is set to False
+        if (os.path.exists(alignment_srt_filename) and os.path.exists(
+                alignment_json_filename)) and not overwrite_existing:
+            continue
+
+        # Run the echogarden align command
         os.system(
-            f'echogarden align "./audiobook_chapters/{audiobook_filename}" "./ebook_files/text/{ebook_filename}" "{alignment_srt_filename}" "{alignment_json_filename}"')
-        #
-        print(f"Align command would be run for {audiobook_filename} and {ebook_filename}")
+            f'echogarden align "./audiobook_chapters/{audiobook_filename}" "./ebook_files/text/{ebook_filename}" "{alignment_srt_filename}" "{alignment_json_filename}"'
+        )
+
+        print(f"Align command was run for {audiobook_filename} and {ebook_filename}")
 
 
 def read_audiobook_pages(file_path):
@@ -73,23 +77,23 @@ def read_audiobook_pages(file_path):
 def extract_text_from_html(ebook_filename, page_number):
     """
     Parse the HTML file to find the <span> tag with the specified ID and attributes,
-    and then locate the preceding <p> tag to extract its text content.
+    and then locate the corresponding <p> tag to extract its text content.
 
     Args:
     ebook_filename (str): The filename of the ebook HTML file.
     page_number (int): The page number to search for in the HTML file.
 
     Returns:
-    str: The text content of the preceding <p> tag, or None if not found.
+    str: The text content of the corresponding <p> tag, or None if not found.
     """
     with open(f'./ebook_files/text/{ebook_filename}', 'r') as file:
         soup = BeautifulSoup(file, 'html.parser')
         span_tag = soup.find('span', {'id': f'pg{page_number + 1}', 'epub:type': 'pagebreak'})
 
         if span_tag:
-            p_tag = span_tag.find_previous('p').find_previous('p')
-            if p_tag:
-                return p_tag.get_text()
+            parent_tag = span_tag.find_parent()
+            if parent_tag:
+                return parent_tag.get_text()
 
     return None
 
@@ -162,7 +166,7 @@ if __name__ == '__main__':
     create_directories()
 
     # Step 3: Run Echogarden Align
-    # run_echogarden_align(audiobook_to_ebook_map)
+    run_echogarden_align(audiobook_to_ebook_map)
 
     # Step 4: Read Audiobook Pages
     audiobook_pages = read_audiobook_pages(audiobook_pages_file_path)
