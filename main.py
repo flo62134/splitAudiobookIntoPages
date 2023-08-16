@@ -50,7 +50,7 @@ def run_echogarden_align(audiobook_to_ebook_map, overwrite_existing: bool = Fals
 
         # Run the echogarden align command
         os.system(
-            f'echogarden align "./audiobook_chapters/{audiobook_filename}" "./ebook_files/text/{ebook_filename}" "{alignment_json_filename}"'
+            f'echogarden align "./audiobook_chapters/{audiobook_filename}" "./ebook_files/text/{ebook_filename}" "{alignment_json_filename}" --dtw.granularity=low --dtw.windowDuration=300'
         )
 
         print(f"Align command was run for {audiobook_filename} and {ebook_filename}")
