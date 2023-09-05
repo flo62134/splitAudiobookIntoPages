@@ -1,4 +1,4 @@
-# Audiobook Page Splitter
+# Audiobook Page Splitter based on echogarden
 
 ## Project Description
 
@@ -20,15 +20,15 @@ corresponding to the pages of the ebook.
 
 ## Usage
 
-1. **Prepare Your Files:**
+1. Prepare Your Files:
     - Extract your EPUB file and place the text files in the `./ebook_files/text/` directory.
     - Place your audiobook chapter files in the `./audiobook_chapters/` directory.
     - Create a `chapters_map` file to map each audiobook file to its corresponding ebook file.
 
-2. **Run the Script:**
+2. Run the Script:
     - Run the Python script `main.py`
 
-3. **Get the Output:**
+3. Get the Output:
     - After running the script, you will find the split audio files in the `./audiobook_pages/` directory. Each audio
       file corresponds to specific pages in the ebook.
 
@@ -60,3 +60,41 @@ Project Hail Mary [B08GB66Q3R] - 04 - Chapter 2.mp3, part0008.html
 - Ensure that `ffmpeg` and `echogarden` (or a similar alignment tool) are installed and accessible from the command
   line.
 - Ensure that the paths in the script match your directory structure.
+
+# Audiobook page splitter (proportional to page numbers)
+
+## Overview
+
+This Python script is designed to split an audiobook into multiple audio files, each corresponding to a specific page
+range. The script uses `ffprobe` to get the duration of the audio files and `ffmpeg` to split them. The script
+reads a chapter-page mapping file and an audiobook end page file to determine how to split the audio files.
+
+## Prerequisites
+
+- Python 3.x
+- `ffmpeg` and `ffprobe` installed and available in the system PATH
+
+## Files Needed
+
+1. `chapters_pages`: A text file containing the mapping between audio files and their starting page numbers. Each
+   line should be in the format `audio_file_path,start_page`.
+
+   Example:
+
+    ```
+    chapter1.mp3,1
+    chapter2.mp3,10
+    ```
+
+2. `audiobook_end_page`: A text file containing the last page number of the audiobook.
+
+   Example:
+
+    ```
+    20
+    ```
+
+## Output
+
+The split audio files will be saved in a directory named `audiobook_pages`, each named according to its
+corresponding page number.
