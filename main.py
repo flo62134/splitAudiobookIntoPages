@@ -50,7 +50,7 @@ def run_echogarden_align(audiobook_to_ebook_map, overwrite_existing: bool = Fals
 
         # Run the echogarden align command
         os.system(
-            f'echogarden align "./audiobook_chapters/{audiobook_filename}" "./ebook_files/text/{ebook_filename}" "{alignment_json_filename}" --dtw.granularity=low --dtw.windowDuration=300'
+            f'echogarden align "./audiobook_chapters/{audiobook_filename}" "./ebook_files/text/{ebook_filename}" "{alignment_json_filename}" --dtw.granularity=low --dtw.windowDuration=900'
         )
 
         print(f"Align command was run for {audiobook_filename} and {ebook_filename}")
@@ -88,7 +88,8 @@ def extract_text_from_html(ebook_filename, page_number):
     """
     with open(f'./ebook_files/text/{ebook_filename}', 'r') as file:
         soup = BeautifulSoup(file, 'html.parser')
-        span_tag = soup.find('span', {'id': f'pg{page_number + 1}', 'epub:type': 'pagebreak'})
+        # span_tag = soup.find('span', {'id': f'pg{page_number + 1}', 'epub:type': 'pagebreak'})
+        span_tag = soup.find('a', {'id': f'pg{page_number + 1}'})
 
         if span_tag:
             parent_tag = span_tag.find_parent()
