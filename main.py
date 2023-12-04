@@ -2,6 +2,7 @@ import csv
 import json
 import os
 import re
+import subprocess
 from bs4 import BeautifulSoup
 
 
@@ -88,8 +89,9 @@ def extract_text_from_html(ebook_filename, page_number):
     """
     with open(f'./ebook_files/text/{ebook_filename}', 'r') as file:
         soup = BeautifulSoup(file, 'html.parser')
-        # span_tag = soup.find('span', {'id': f'pg{page_number + 1}', 'epub:type': 'pagebreak'})
-        span_tag = soup.find('a', {'id': f'pg{page_number + 1}'})
+        span_tag = soup.find('span', {'id': f'pg{page_number + 1}', 'epub:type': 'pagebreak'})
+        # span_tag = soup.find('a', {'id': f'pg{page_number + 1}'})
+        # span_tag = soup.find('span', {'id': f'Page_{page_number + 1}'})
 
         if span_tag:
             parent_tag = span_tag.find_parent()
@@ -143,6 +145,54 @@ def get_end_timestamp_from_json(json_file_path, search_text):
 
     # Return None if the search_text is not found in the JSON file
     return None
+
+
+def get_audio_file_duration(file_path):
+    """
+    Get the duration of an audio file using ffmpeg.
+
+    Args:
+    file_path (str): Path to the audio file.
+
+    Returns:
+    float: Duration of the audio file in seconds.
+    """
+    result = subprocess.run(
+        ['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', file_path],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+    return float(result.stdout)
+
+def validateAudioPages(audiobook_pages, audiobook_pages_path):
+    """
+    Check if all pages are present in the audiobook_pages folder and if all files are longer than 1 second.
+
+    Args:
+    audiobook_pages (list): List of tuples with start and end page numbers.
+    audiobook_pages_path (str): Path to the audiobook_pages folder.
+
+    Outputs:
+    Print a warning for each missing or too short audio file.
+    """
+    missing_or_short_files = []
+    for start_page, end_page in audiobook_pages:
+        for page_number in range(start_page, end_page + 1):
+            file_path = f"{audiobook_pages_path}{page_number}.mp3"
+            if not os.path.exists(file_path):
+                missing_or_short_files.append(f"Missing file: {page_number}.mp3")
+            else:
+                duration = get_audio_file_duration(file_path)
+                if duration <= 1:
+                    missing_or_short_files.append(f"File too short: {page_number}.mp3")
+
+    if missing_or_short_files:
+        print("Issues found in audiobook pages:")
+        for issue in missing_or_short_files:
+            print(issue)
+    else:
+        print("All audiobook pages are present and have sufficient duration.")
+
 
 
 if __name__ == '__main__':
@@ -200,3 +250,5 @@ if __name__ == '__main__':
                         split_audio_file(audiobook_filename, start_time, end_timestamp, output_audio_filename)
 
                         start_time = end_timestamp
+
+    validateAudioPages(audiobook_pages, audiobook_pages_path)
