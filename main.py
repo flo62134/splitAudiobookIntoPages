@@ -75,7 +75,7 @@ def read_audiobook_pages(file_path):
     return pages
 
 
-def extract_text_from_html(ebook_filename, page_number):
+def extract_text_from_html(ebook_filename, page_number, audiobook_filename):
     """
     Parse the HTML file to find the <span> tag with the specified ID and attributes,
     and then locate the corresponding <p> tag to extract its text content.
@@ -89,14 +89,19 @@ def extract_text_from_html(ebook_filename, page_number):
     """
     with open(f'./ebook_files/text/{ebook_filename}', 'r') as file:
         soup = BeautifulSoup(file, 'html.parser')
-        span_tag = soup.find('span', {'id': f'pg{page_number + 1}', 'epub:type': 'pagebreak'})
-        # span_tag = soup.find('a', {'id': f'pg{page_number + 1}'})
-        # span_tag = soup.find('span', {'id': f'Page_{page_number + 1}'})
+        next_page_span = soup.find('span', {'id': f'pg{page_number + 1}', 'epub:type': 'pagebreak'})
+        # next_page_span = soup.find('a', {'id': f'pg{page_number + 1}'})
+        # next_page_span = soup.find('span', {'id': f'Page_{page_number + 1}'})
 
-        if span_tag:
-            parent_tag = span_tag.find_parent()
+        current_page_span = soup.find('span', {'id': f'pg{page_number}', 'epub:type': 'pagebreak'})
+
+        if next_page_span:
+            parent_tag = next_page_span.find_parent()
             if parent_tag:
                 return parent_tag.get_text()
+
+        if current_page_span and not next_page_span:
+            return get_last_segment(os.path.join(alignment_path, f'{audiobook_filename}-{ebook_filename}.json'))
 
     return None
 
@@ -145,6 +150,18 @@ def get_end_timestamp_from_json(json_file_path, search_text):
 
     # Return None if the search_text is not found in the JSON file
     return None
+
+
+def get_last_segment(json_file_path):
+    with open(json_file_path, 'r') as file:
+        json_data = json.load(file)
+
+    # Traverse through the nested structure of the JSON data
+    for item in json_data:
+        if item['type'] == 'segment':
+            last_segment_text = item['text']
+
+    return last_segment_text
 
 
 def get_audio_file_duration(file_path):
@@ -227,11 +244,12 @@ if __name__ == '__main__':
             for audiobook_filename, ebook_filename in audiobook_to_ebook_map.items():
 
                 # Extract text content from the HTML file
-                text_content = extract_text_from_html(ebook_filename, page_number)
+                text_content = extract_text_from_html(ebook_filename, page_number, audiobook_filename)
+
+                json_file_path = os.path.join(alignment_path, f'{audiobook_filename}-{ebook_filename}.json')
 
                 if text_content:
                     # Construct the path to the corresponding .json file
-                    json_file_path = os.path.join(alignment_path, f'{audiobook_filename}-{ebook_filename}.json')
                     if not os.path.exists(json_file_path):
                         continue
 
@@ -250,5 +268,7 @@ if __name__ == '__main__':
                         split_audio_file(audiobook_filename, start_time, end_timestamp, output_audio_filename)
 
                         start_time = end_timestamp
+
+                        break
 
     validateAudioPages(audiobook_pages, audiobook_pages_path)
