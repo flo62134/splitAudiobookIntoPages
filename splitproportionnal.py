@@ -22,8 +22,9 @@ def split():
     with open(chapters_pages_file, 'r') as file:
         lines = file.readlines()
         for line in lines:
-            audio_file, start_page = line.strip().split(',')
-            chapters.append((audio_file, int(start_page)))
+            # Split from the right only once if the file name contains commas
+            audio_file, start_page = line.rsplit(',', 1)
+            chapters.append((audio_file.strip(), int(start_page.strip())))
 
     # Step 2: Read the Last Page Number
     with open('./audiobook_end_page', 'r') as file:
