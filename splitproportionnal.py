@@ -42,15 +42,16 @@ def split():
         page_duration = chapter_duration / num_pages
         output_path = './audiobook_pages/{}-temp.mp3'
 
-        # Use ffmpeg to split the audio file into equal parts
+        # Use ffmpeg to split the audio file into equal parts with the best possible quality
         cmd = [
             'ffmpeg',
             '-i', audio_file_path,
             '-map_metadata', '-1',
             '-f', 'segment',
             '-segment_time', str(page_duration),
-            '-c', 'copy',
-            output_path.format('%d')
+            '-c:a', 'libmp3lame',  # Specify the audio codec
+            '-q:a', '0',  # Set the quality to best (VBR)
+            output_path.format('%d')  # Ensure output files are properly numbered
         ]
         subprocess.run(cmd)
 
