@@ -13,7 +13,7 @@ corresponding to the pages of the ebook.
   under `./ebook_files/text/`.
 - `./audiobook_chapters/`: Directory containing multiple audio files, each representing a chapter of the audiobook.
 - `./chapters_map`: File containing a list of audiobook files related to ebook files in the
-  format `AUDIOFILENAME, EBOOKFILENAME`.
+  format `"AUDIOFILENAME", EBOOKFILENAME`.
 - `./alignment/`: Directory that will contain alignment files between audiobook files and ebook files.
 - `./audiobook_pages/`: Directory where the resulting audio files will be saved. Each audio file corresponds to a
   specific page or range of pages from the ebook.
@@ -42,8 +42,8 @@ corresponding to the pages of the ebook.
 ## Example `chapters_map` File
 
 ```
-Project Hail Mary [B08GB66Q3R] - 03 - Chapter 1.mp3, part0007.html
-Project Hail Mary [B08GB66Q3R] - 04 - Chapter 2.mp3, part0008.html
+"Project Hail Mary [B08GB66Q3R] - 03 - Chapter 1.mp3", part0007.html
+"Project Hail Mary [B08GB66Q3R] - 04 - Chapter 2.mp3", part0008.html
 ...
 ```
 
@@ -98,3 +98,49 @@ reads a chapter-page mapping file and an audiobook end page file to determine ho
 
 The split audio files will be saved in a directory named `audiobook_pages`, each named according to its
 corresponding page number.
+
+TODO:
+- Automatically select page break style
+
+
+# prompt
+
+Complete each line of the following file:
+
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 05 - 3꞉ A Day in the Life of Adam and Eve.mp3,45
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 06 - 4꞉ The Flood.mp3,75
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 07 - Part Two - The Agricultural Revolution.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 08 - 5꞉ History’s Biggest Fraud.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 09 - 6꞉ Building Pyramids.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 10 - 7꞉ Memory Overload.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 11 - 8꞉ There Is No Justice in History.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 12 - Part Three - The Unification of Humankind.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 13 - 9꞉ The Arrow of History.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 14 - 10꞉ The Scent of Money.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 15 - 11꞉ Imperial Visions.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 16 - 12꞉ The Law of Religion Part 1.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 17 - 12꞉ The Law of Religion Part 2.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 18 - 13꞉ The Secret of Success.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 19 - Part Four - The Scientific Revolution.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 20 - 14꞉ The Discovery of Ignorance Part 1.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 21 - 14꞉ The Discovery of Ignorance Part 2.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 22 - 15꞉ The Marriage of Science and Empire Part 1.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 23 - 15꞉ The Marriage of Science and Empire Part 2.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 24 - 16꞉ The Capitalist Creed Part 1.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 25 - 16꞉ The Capitalist Creed Part 2.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 26 - 17꞉ The Wheels of Industry.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 27 - 18꞉ A Permanent Revolution Part 1.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 28 - 18꞉ A Permanent Revolution Part 2.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 29 - 19꞉ And They Lived Happily Ever After.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 30 - 20꞉ The End of Homo Sapiens.mp3,
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 31 - Afterword꞉ The Animal that Became a God.mp3,
+
+Each file should be followed by a comma and a page number.
+For example, lines 1 and 2 are already completed.
+This indicates that Chapter "A Day in the Life of Adam and Eve" starts at page 45:
+/Users/florentbrassart/splitAudiobookIntoPages/audiobook_chapters/Sapiens [B00VY2JH4I] - 05 - 3꞉ A Day in the Life of Adam and Eve.mp3,45
+
+Based on the picture I have sent you, complete each line of the file.
+You will find in this picture the list of chapters, followed by their start page number.
+
+If a chapter can be found multiple times in the file, attribute a random page number that is between the start of the previous chapter and the start of the next chapter.
