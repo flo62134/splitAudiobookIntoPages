@@ -89,7 +89,9 @@ def extract_text_from_html(ebook_filename, page_number, audiobook_filename):
     """
     with open(f'./ebook_files/text/{ebook_filename}', 'r') as file:
         soup = BeautifulSoup(file, 'html.parser')
-        next_page_span = soup.find('span', {'id': f'pg{page_number + 1}', 'epub:type': 'pagebreak'})
+        next_page_span = soup.find('span', {'id': f'page{page_number + 1}', 'epub:type': 'pagebreak'})
+        # next_page_span = soup.find('span', {'id': f'page_{page_number + 1}', 'epub:type': 'pagebreak'})
+        # next_page_span = soup.find('span', {'id': f'pg{page_number + 1}', 'epub:type': 'pagebreak'})
         # next_page_span = soup.find('a', {'id': f'pg{page_number + 1}'})
         # next_page_span = soup.find('span', {'id': f'Page_{page_number + 1}'})
 
